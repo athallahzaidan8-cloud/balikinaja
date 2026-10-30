@@ -1,0 +1,29 @@
+# Blueprint Render: New + > Blueprint > pilih repo ini, lalu isi nilai yang ditanyakan.
+services:
+  - type: web
+    name: balikinaja
+    runtime: docker
+    plan: free
+    region: singapore
+    healthCheckPath: /
+    envVars:
+      # dari Aiven: jdbc:mysql://HOST:PORT/defaultdb?sslMode=REQUIRED
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      # password akun admin & akun contoh, dibuat acak oleh Render (lihat di tab Environment)
+      - key: ADMIN_PASSWORD
+        generateValue: true
+      - key: DEMO_PASSWORD
+        generateValue: true
+      - key: PENYIMPANAN_FOTO
+        value: database
+      - key: TAMPILKAN_AKUN_DEMO
+        value: "false"
+      - key: BUKA_BROWSER
+        value: "false"
+      - key: THYMELEAF_CACHE
+        value: "true"

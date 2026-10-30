@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Daftar')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main class="auth" id="main">
+  <section class="auth__side on-dark">
+    <p class="chip chip--green"><span class="chip__dot"></span>Gratis untuk seluruh warga kampus</p>
+    <h1 class="t-display">Satu akun, semua barang kembali.</h1>
+    <p class="t-lead">Daftar sebagai mahasiswa, dosen, atau staf. Akun yang sama dipakai untuk melapor kehilangan, melapor temuan, dan mengajukan klaim.</p>
+  </section>
+  <section class="auth__main">
+    <div class="auth__card">
+      <div class="stack" style="gap:.5rem">
+        <h2 class="t-h2">Buat akun</h2>
+        <p class="muted">Sudah punya akun? <a class="link" th:href="@{/login}">Masuk</a></p>
+      </div>
+      <p class="alert alert--err" th:if="${error != null}" role="alert"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16h.01"/></svg><span th:text="${error}">Error</span></p>
+      <form class="form" th:action="@{/register}" method="post">
+        <div class="field">
+          <span class="field__label">Saya adalah <span class="req">*</span></span>
+          <div class="choices">
+            <label class="choice"><input type="radio" name="jenisPengguna" value="Mahasiswa" th:checked="${jenisPengguna == null or jenisPengguna == 'Mahasiswa'}"><span>Mahasiswa</span></label>
+            <label class="choice"><input type="radio" name="jenisPengguna" value="Dosen" th:checked="${jenisPengguna == 'Dosen'}"><span>Dosen</span></label>
+            <label class="choice"><input type="radio" name="jenisPengguna" value="Staf" th:checked="${jenisPengguna == 'Staf'}"><span>Staf</span></label>
+          </div>
+        </div>
+        <div class="form-grid">
+          <label class="field full"><span class="field__label">Nama lengkap <span class="req">*</span></span>
+            <input class="input" name="nama" th:value="${nama}" autocomplete="name" required></label>
+          <label class="field"><span class="field__label">NIM / NIP <span class="req">*</span></span>
+            <input class="input" name="nomorIdentitas" th:value="${nomorIdentitas}" required></label>
+          <label class="field"><span class="field__label">No. telepon</span>
+            <input class="input" type="tel" name="noTelepon" th:value="${noTelepon}" autocomplete="tel" placeholder="08xxxxxxxxxx"></label>
+          <label class="field full"><span class="field__label">Email <span class="req">*</span></span>
+            <input class="input" type="email" name="email" th:value="${email}" autocomplete="email" required></label>
+          <label class="field full"><span class="field__label">Password <span class="req">*</span></span>
+            <input class="input" type="password" name="password" minlength="8" autocomplete="new-password" required>
+            <span class="field__hint">Minimal 8 karakter.</span></label>
+        </div>
+        <div class="form__actions"><button class="btn" type="submit">Daftar</button></div>
+      </form>
+    </div>
+  </section>
+</main>
+<footer th:replace="~{fragments/layout :: footerSlim}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+</body>
+</html>

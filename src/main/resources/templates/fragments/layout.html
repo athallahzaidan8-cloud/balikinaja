@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${title} + ' · BalikinAja'">BalikinAja</title>
+  <meta name="description" content="BalikinAja - sistem informasi barang hilang dan temuan di lingkungan kampus Telkom University. Lapor, cari, dan klaim barang yang hilang.">
+  <meta name="google-site-verification" th:if="${googleVerification != null and !#strings.isEmpty(googleVerification)}" th:content="${googleVerification}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BalikinAja">
+  <meta property="og:title" th:content="${title} + ' · BalikinAja'">
+  <meta property="og:description" content="Sistem informasi barang hilang dan temuan di lingkungan kampus Telkom University.">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2064%2064'%3E%3Crect%20width%3D'64'%20height%3D'64'%20rx%3D'14'%20fill%3D'%231b1411'%2F%3E%3Ctext%20x%3D'32'%20y%3D'45'%20font-family%3D'Arial%2CHelvetica%2Csans-serif'%20font-size%3D'38'%20font-weight%3D'700'%20text-anchor%3D'middle'%20fill%3D'%2333cc7a'%3EB%3C%2Ftext%3E%3C%2Fsvg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/balikinaja.css}">
+</head>
+<body>
+
+<!-- logo: panah kembali (hijau) + titik barang (kertas) -->
+<svg th:fragment="mark(cls)" th:class="${cls}" viewBox="0 0 40 28" aria-hidden="true">
+  <path th:class="${cls} + '-a'" d="M10 22.5A10 10 0 1 1 27.5 17"/>
+  <path th:class="${cls} + '-a'" d="M22.6 15.6l5 1.6 1.7-5"/>
+  <path th:class="${cls} + '-b'" d="M16.5 14h.01"/>
+</svg>
+
+<header th:fragment="nav" class="nav on-dark" id="nav">
+  <nav class="nav__bar" aria-label="Utama">
+    <a class="brand" th:href="${currentUser != null ? currentUser.halamanDashboard : '/'}" aria-label="BalikinAja, ke beranda">
+      <svg th:replace="~{fragments/layout :: mark('brand__mark')}"></svg>
+      <span class="brand__word">BalikinAja</span>
+    </a>
+
+    <ul class="nav__links t-label" th:if="${currentUser == null}">
+      <li><a class="link-2" th:href="@{/cari}" th:attr="aria-current=${currentPath == '/cari'} ? 'page'">Cari barang</a></li>
+      <li><a class="link-2" th:href="@{/temuan}" th:attr="aria-current=${currentPath == '/temuan'} ? 'page'">Barang temuan</a></li>
+      <li><a class="link-2" href="/#cara-kerja">Cara kerja</a></li>
+      <li><a class="link-2" href="/#pertanyaan">Pertanyaan</a></li>
+    </ul>
+    <ul class="nav__links t-label" th:if="${currentUser != null and currentUser.role == 'PENGGUNA'}">
+      <li><a class="link-2" th:href="@{/dashboard}" th:attr="aria-current=${currentPath == '/dashboard'} ? 'page'">Dashboard</a></li>
+      <li><a class="link-2" th:href="@{/cari}" th:attr="aria-current=${currentPath == '/cari'} ? 'page'">Cari barang</a></li>
+      <li><a class="link-2" th:href="@{/laporan/saya}" th:attr="aria-current=${currentPath == '/laporan/saya'} ? 'page'">Laporan saya</a></li>
+      <li><a class="link-2" th:href="@{/klaim/saya}" th:attr="aria-current=${currentPath == '/klaim/saya'} ? 'page'">Klaim saya</a></li>
+    </ul>
+    <ul class="nav__links t-label" th:if="${currentUser != null and currentUser.role == 'ADMIN'}">
+      <li><a class="link-2" th:href="@{/admin}" th:attr="aria-current=${currentPath == '/admin'} ? 'page'">Dashboard</a></li>
+      <li><a class="link-2" th:href="@{/admin/klaim}" th:attr="aria-current=${#strings.startsWith(currentPath, '/admin/klaim')} ? 'page'">Verifikasi klaim</a></li>
+      <li><a class="link-2" th:href="@{/admin/laporan}" th:attr="aria-current=${currentPath == '/admin/laporan'} ? 'page'">Semua laporan</a></li>
+      <li><a class="link-2" th:href="@{/cari}" th:attr="aria-current=${currentPath == '/cari'} ? 'page'">Cari</a></li>
+    </ul>
+
+    <div class="nav__actions" th:if="${currentUser == null}">
+      <a class="btn btn--ghost btn--sm" th:href="@{/login}">Masuk</a>
+      <a class="btn btn--sm" th:href="@{/register}">Daftar gratis</a>
+    </div>
+    <div class="nav__actions" th:if="${currentUser != null}">
+      <a class="btn btn--sm" th:if="${currentUser.role == 'PENGGUNA'}" th:href="@{/lapor}">Lapor barang</a>
+      <span class="nav__user"><span class="avatar" th:text="${#strings.substring(currentUser.nama, 0, 1)}">R</span><span th:text="${currentUser.namaDepan}">Rani</span></span>
+      <form th:action="@{/logout}" method="post">
+        <button class="icon-btn" type="submit" aria-label="Keluar" title="Keluar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg></button>
+      </form>
+    </div>
+    <button class="icon-btn nav__toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Buka menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
+  </nav>
+
+  <div class="menu" id="menu" hidden role="dialog" aria-modal="true" aria-label="Menu">
+    <button class="icon-btn menu__close" type="button" aria-label="Tutup menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <ul class="menu__links" th:if="${currentUser == null}">
+      <li><a class="link-2" th:href="@{/}">Beranda</a></li>
+      <li><a class="link-2" th:href="@{/cari}">Cari barang</a></li>
+      <li><a class="link-2" th:href="@{/temuan}">Barang temuan</a></li>
+      <li><a class="link-2" th:href="@{/login}">Masuk</a></li>
+    </ul>
+    <ul class="menu__links" th:if="${currentUser != null and currentUser.role == 'PENGGUNA'}">
+      <li><a class="link-2" th:href="@{/dashboard}">Dashboard</a></li>
+      <li><a class="link-2" th:href="@{/lapor}">Lapor barang</a></li>
+      <li><a class="link-2" th:href="@{/cari}">Cari barang</a></li>
+      <li><a class="link-2" th:href="@{/laporan/saya}">Laporan saya</a></li>
+      <li><a class="link-2" th:href="@{/klaim/saya}">Klaim saya</a></li>
+    </ul>
+    <ul class="menu__links" th:if="${currentUser != null and currentUser.role == 'ADMIN'}">
+      <li><a class="link-2" th:href="@{/admin}">Dashboard</a></li>
+      <li><a class="link-2" th:href="@{/admin/klaim}">Verifikasi klaim</a></li>
+      <li><a class="link-2" th:href="@{/admin/laporan}">Semua laporan</a></li>
+      <li><a class="link-2" th:href="@{/cari}">Cari</a></li>
+    </ul>
+    <a class="btn" th:if="${currentUser == null}" th:href="@{/register}">Daftar gratis</a>
+    <form th:if="${currentUser != null}" th:action="@{/logout}" method="post"><button class="btn btn--ghost" type="submit">Keluar</button></form>
+  </div>
+</header>
+
+<div th:fragment="flash" class="flash l-wrap" th:if="${sukses != null or error != null}">
+  <p class="alert alert--ok" th:if="${sukses != null}" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg><span th:text="${sukses}">Berhasil</span></p>
+  <p class="alert alert--err" th:if="${error != null}" role="alert"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16h.01"/></svg><span th:text="${error}">Error</span></p>
+</div>
+
+<footer th:fragment="footer" class="footer on-dark">
+  <div class="l-wrap">
+    <div class="footer__top">
+      <div class="footer__pitch">
+        <h2 class="t-h3">Barang hilang di kampus? Balikin aja, bareng-bareng.</h2>
+        <p class="t-lead">Tugas Besar Pemrograman Berorientasi Objek, Kelompok 5 IT-48-03, Universitas Telkom.</p>
+        <a class="link t-label" href="#">Kembali ke atas</a>
+      </div>
+      <div class="footer__cols">
+        <div class="footer__col"><h2>Layanan</h2><ul>
+          <li><a class="link-2" th:href="@{/cari}">Cari barang</a></li>
+          <li><a class="link-2" th:href="@{/temuan}">Barang temuan</a></li>
+          <li><a class="link-2" th:href="@{/lapor}">Lapor barang</a></li>
+        </ul></div>
+        <div class="footer__col"><h2>Akun</h2><ul>
+          <li th:if="${currentUser == null}"><a class="link-2" th:href="@{/login}">Masuk</a></li>
+          <li th:if="${currentUser == null}"><a class="link-2" th:href="@{/register}">Daftar</a></li>
+          <li th:if="${currentUser != null}"><a class="link-2" th:href="${currentUser.halamanDashboard}">Dashboard</a></li>
+          <li th:if="${currentUser != null and currentUser.role == 'PENGGUNA'}"><a class="link-2" th:href="@{/laporan/saya}">Laporan saya</a></li>
+        </ul></div>
+        <div class="footer__col"><h2>Info</h2><ul>
+          <li><a class="link-2" href="/#cara-kerja">Cara kerja</a></li>
+          <li><a class="link-2" href="/#pertanyaan">Pertanyaan</a></li>
+        </ul></div>
+      </div>
+    </div>
+    <div class="footer__brand" aria-hidden="true">
+      <svg th:replace="~{fragments/layout :: mark('footer__logo')}"></svg>
+      <p class="footer__word" style="--len:10">BalikinAja</p>
+    </div>
+    <div class="footer__legal">
+      <p>© 2026 Kelompok 5 IT-48-03 · Desain diadaptasi dari template oleh <a href="https://8b.com/" style="color:inherit">8B</a> (MIT)</p>
+      <p>Universitas Telkom · Bandung</p>
+    </div>
+  </div>
+</footer>
+
+<footer th:fragment="footerSlim" class="footer footer--slim on-dark">
+  <div class="l-wrap footer__legal">
+    <p>© 2026 BalikinAja · Kelompok 5 IT-48-03 · Desain diadaptasi dari template oleh <a href="https://8b.com/" style="color:inherit">8B</a> (MIT)</p>
+    <p>Universitas Telkom · Bandung</p>
+  </div>
+</footer>
+
+<script th:fragment="scripts" th:src="@{/js/balikinaja.js}"></script>
+</body>
+</html>

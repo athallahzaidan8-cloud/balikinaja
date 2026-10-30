@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Semua laporan')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main">
+  <section class="page-head page-head--dark on-dark">
+    <div class="l-wrap page-head__copy">
+      <h1 class="t-h1">Semua laporan</h1>
+      <p class="t-lead">Termasuk laporan yang sudah selesai. Buka detail untuk melihat riwayat statusnya.</p>
+    </div>
+  </section>
+  <section class="band band--sheet band--paper">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="l-wrap stack">
+      <nav class="tabs" aria-label="Filter status">
+        <a class="tab" th:href="@{/admin/laporan}" th:attr="aria-current=${status == null}">Semua</a>
+        <a class="tab" th:each="s : ${statusList}" th:href="@{/admin/laporan(status=${s})}" th:attr="aria-current=${s == status}" th:text="${s.label}">Status</a>
+      </nav>
+      <div class="table-wrap" th:unless="${#lists.isEmpty(laporanList)}">
+        <table class="table">
+          <thead><tr><th>#</th><th>Barang</th><th>Jenis</th><th>Pelapor</th><th>Lokasi</th><th>Tanggal</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr th:each="l : ${laporanList}">
+              <td th:text="${l.idLaporan}">1</td>
+              <td><a class="table__item" th:href="@{/laporan/{id}(id=${l.idLaporan})}"><img th:src="${l.foto.url}" alt="" width="48" height="48"><span th:text="${l.namaBarang}">Barang</span></a></td>
+              <td th:text="${l.jenisLaporan}">Jenis</td>
+              <td th:text="${l.pelapor.nama}">Pelapor</td>
+              <td th:text="${l.lokasi}">Lokasi</td>
+              <td th:text="${#temporals.format(l.tanggalKejadian, 'd MMM yyyy')}">Tanggal</td>
+              <td><span th:class="'badge badge--' + ${l.status}" th:text="${l.status.label}">Status</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <th:block th:if="${#lists.isEmpty(laporanList)}"><div th:replace="~{fragments/cards :: empty('Tidak ada laporan', 'Belum ada laporan dengan status ini.')}"></div></th:block>
+    </div>
+  </section>
+</main>
+<footer th:replace="~{fragments/layout :: footerSlim}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+</body>
+</html>

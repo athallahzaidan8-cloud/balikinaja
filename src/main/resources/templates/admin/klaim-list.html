@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Verifikasi klaim')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main">
+  <section class="page-head page-head--dark on-dark">
+    <div class="l-wrap page-head__copy">
+      <h1 class="t-h1">Verifikasi klaim</h1>
+      <p class="t-lead" th:text="${#lists.size(klaimList)} + ' klaim menunggu, diurutkan dari yang paling lama.'">Klaim menunggu</p>
+    </div>
+  </section>
+  <section class="band band--sheet band--paper">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="l-wrap">
+      <div class="table-wrap" th:unless="${#lists.isEmpty(klaimList)}">
+        <table class="table">
+          <thead><tr><th>Barang temuan</th><th>Pengklaim</th><th>Diajukan</th><th>Jawaban</th><th></th></tr></thead>
+          <tbody>
+            <tr th:each="k : ${klaimList}">
+              <td><span class="table__item"><img th:src="${k.laporanTemuan.foto.url}" alt="" width="48" height="48"><span th:text="${k.laporanTemuan.namaBarang}">Barang</span></span></td>
+              <td><span th:text="${k.pengklaim.nama}">Nama</span><br><span class="t-small" th:text="${k.pengklaim.nomorIdentitas}">NIM</span></td>
+              <td th:text="${#temporals.format(k.tanggalPengajuan, 'd MMM yyyy, HH:mm')}">Tanggal</td>
+              <td><span th:class="${k.jawabanCocok} ? 'badge badge--DISETUJUI' : 'badge badge--DITOLAK'" th:text="${k.jawabanCocok} ? 'Cocok' : 'Tidak cocok persis'">Cocok</span></td>
+              <td class="text-right"><a class="btn btn--sm btn--dark" th:href="@{/admin/klaim/{id}(id=${k.idKlaim})}">Periksa</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <th:block th:if="${#lists.isEmpty(klaimList)}"><div th:replace="~{fragments/cards :: empty('Semua klaim sudah diverifikasi', 'Klaim baru dari pengguna akan muncul di sini.')}"></div></th:block>
+    </div>
+  </section>
+</main>
+<footer th:replace="~{fragments/layout :: footerSlim}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+</body>
+</html>

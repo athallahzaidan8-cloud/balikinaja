@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Halaman tidak ditemukan')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main">
+  <section class="page-head on-dark">
+    <div class="l-wrap page-head__copy error-page">
+      <p class="chip"><span class="chip__dot"></span><span th:text="${status != null ? 'Kode ' + status : 'Ups'}">Ups</span></p>
+      <h1 class="t-display">Yang ini belum ketemu.</h1>
+      <p class="t-lead" th:text="${pesan != null ? pesan : 'Halaman yang kamu cari tidak ada, atau terjadi kesalahan.'}">Halaman tidak ditemukan.</p>
+      <a class="btn" th:href="${currentUser != null ? currentUser.halamanDashboard : '/'}">Kembali</a>
+    </div>
+  </section>
+  <div class="band band--sheet band--paper" style="padding-block: var(--radius-1)"></div>
+</main>
+<footer th:replace="~{fragments/layout :: footerSlim}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+</body>
+</html>

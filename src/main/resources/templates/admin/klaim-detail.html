@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Periksa klaim')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main" th:with="t=${klaim.laporanTemuan}">
+  <section class="page-head page-head--dark on-dark">
+    <div class="l-wrap page-head__copy">
+      <p class="page-head__eyebrow"><a class="link-2" th:href="@{/admin/klaim}">Verifikasi klaim</a> / <span th:text="'Klaim #' + ${klaim.idKlaim}">Klaim</span>
+        <span th:class="'badge badge--' + ${klaim.status}" th:text="${klaim.status.label}">Status</span></p>
+      <h1 class="t-h1" th:text="${t.namaBarang}">Barang</h1>
+      <p class="t-lead" th:text="'Diklaim oleh ' + ${klaim.pengklaim.nama} + ' pada ' + ${#temporals.format(klaim.tanggalPengajuan, 'd MMMM yyyy, HH:mm')}">Diklaim oleh</p>
+    </div>
+  </section>
+  <section class="band band--sheet band--paper">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="l-wrap split">
+      <div class="stack">
+        <div class="panel panel--dark on-dark">
+          <h2 class="t-h3">Pencocokan jawaban</h2>
+          <p class="chip"><span class="chip__dot"></span><span th:text="${t.pertanyaanVerifikasi}">Pertanyaan</span></p>
+          <p class="chip chip--green" style="justify-self:end"><span class="chip__dot"></span><span th:text="${klaim.jawabanCiri}">Jawaban</span></p>
+          <p th:class="${klaim.jawabanCocok} ? 'alert alert--ok' : 'alert alert--err'">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16h.01"/></svg>
+            <span th:text="${klaim.jawabanCocok} ? 'Jawaban sama dengan jawaban yang disimpan penemu.' : 'Jawaban tidak sama persis dengan jawaban penemu. Periksa apakah maknanya tetap sesuai.'">Hasil</span>
+          </p>
+        </div>
+        <div class="panel panel--white">
+          <h2 class="t-h3">Barang temuan</h2>
+          <figure class="detail__photo"><img th:src="${t.foto.url}" th:alt="'Foto ' + ${t.namaBarang}" width="800" height="600"></figure>
+          <p class="t-body" th:text="${t.deskripsi}">Deskripsi</p>
+          <dl class="facts">
+            <div><dt>Ditemukan di</dt><dd th:text="${t.lokasi}">Lokasi</dd></div>
+            <div><dt>Disimpan di</dt><dd th:text="${t.lokasiPenyimpanan}">Pos</dd></div>
+            <div><dt>Penemu</dt><dd th:text="${t.pelapor.nama}">Nama</dd></div>
+            <div><dt>Status laporan</dt><dd><span th:class="'badge badge--' + ${t.status}" th:text="${t.status.label}">Status</span></dd></div>
+          </dl>
+          <a class="link t-label" style="justify-self:start" th:href="@{/laporan/{id}(id=${t.idLaporan})}">Buka laporan temuan</a>
+        </div>
+      </div>
+
+      <aside class="stack">
+        <div class="panel">
+          <h2 class="t-h3">Pengklaim</h2>
+          <dl class="facts">
+            <div><dt>Nama</dt><dd th:text="${klaim.pengklaim.nama}">Nama</dd></div>
+            <div><dt th:text="${klaim.pengklaim.jenisPengguna}">Mahasiswa</dt><dd th:text="${klaim.pengklaim.nomorIdentitas}">NIM</dd></div>
+            <div><dt>Email</dt><dd th:text="${klaim.pengklaim.email}">Email</dd></div>
+            <div><dt>Telepon</dt><dd th:text="${klaim.pengklaim.noTelepon ?: '-'}">Telp</dd></div>
+          </dl>
+          <div th:if="${klaim.laporanKehilangan != null}" class="stack" style="gap:.5rem">
+            <p class="t-label">Laporan kehilangan yang ditautkan</p>
+            <a th:replace="~{fragments/cards :: row(${klaim.laporanKehilangan})}"></a>
+          </div>
+        </div>
+
+        <form class="panel panel--white form" th:if="${klaim.status.name() == 'MENUNGGU'}" th:action="@{/admin/klaim/{id}/verifikasi(id=${klaim.idKlaim})}" method="post">
+          <h2 class="t-h3">Keputusan</h2>
+          <label class="field"><span class="field__label">Catatan untuk pengklaim</span>
+            <textarea class="input" name="catatan" maxlength="500" placeholder="Contoh: Silakan ambil di pos satpam dengan membawa KTM."></textarea></label>
+          <div class="form__actions">
+            <button class="btn" type="submit" name="keputusan" value="setujui">Setujui klaim</button>
+            <button class="btn btn--danger" type="submit" name="keputusan" value="tolak">Tolak</button>
+          </div>
+        </form>
+        <div class="panel" th:unless="${klaim.status.name() == 'MENUNGGU'}">
+          <h2 class="t-h3">Sudah diverifikasi</h2>
+          <p class="t-body" th:text="'Oleh ' + ${klaim.verifikator?.nama} + '. ' + ${klaim.catatanAdmin ?: ''}">Oleh</p>
+        </div>
+
+        <div class="panel" th:unless="${#lists.isEmpty(klaimLain)}">
+          <h2 class="t-h3">Klaim lain untuk barang ini</h2>
+          <ul class="rows">
+            <li class="row" th:each="k : ${klaimLain}" style="grid-template-columns: 1fr auto">
+              <span><span class="row__title" th:text="${k.pengklaim.nama}">Nama</span><br><span class="row__meta" th:text="${k.jawabanCiri}">Jawaban</span></span>
+              <a th:href="@{/admin/klaim/{id}(id=${k.idKlaim})}" th:class="'badge badge--' + ${k.status}" th:text="${k.status.label}">Status</a>
+            </li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
+<footer th:replace="~{fragments/layout :: footerSlim}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+</body>
+</html>

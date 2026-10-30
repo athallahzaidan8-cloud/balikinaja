@@ -1,0 +1,9 @@
+target/
+uploads/
+.git/
+*.bat
+nbactions.xml
+nb-configuration.xml
+nbproject/
+.idea/
+.vscode/

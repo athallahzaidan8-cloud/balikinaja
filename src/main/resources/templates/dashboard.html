@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Dashboard')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main">
+  <section class="page-head on-dark">
+    <div class="l-wrap page-head__inner">
+      <div class="page-head__copy">
+        <p class="page-head__eyebrow" th:text="${currentUser.jenisPengguna} + ' · ' + ${currentUser.nomorIdentitas}">Mahasiswa · NIM</p>
+        <h1 class="t-h1" th:text="'Halo, ' + ${currentUser.namaDepan} + '.'">Halo.</h1>
+        <p class="t-lead">Apa yang terjadi hari ini? Laporkan barang yang hilang atau yang baru kamu temukan.</p>
+      </div>
+      <div class="page-head__actions">
+        <a class="btn" th:href="@{/laporan/hilang/baru}">Lapor kehilangan</a>
+        <a class="btn btn--ghost" th:href="@{/laporan/temuan/baru}">Lapor temuan</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--sheet band--paper">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="l-wrap stack">
+      <div class="stats">
+        <div class="stat stat--green"><span class="stat__num" th:text="${jumlahAktif}">0</span><span class="t-label">laporan aktif</span></div>
+        <div class="stat"><span class="stat__num" th:text="${jumlahLaporan}">0</span><span class="t-label">total laporan saya</span></div>
+        <div class="stat stat--dark"><span class="stat__num" th:text="${#lists.size(klaimSaya)}">0</span><span class="t-label">klaim terbaru</span></div>
+      </div>
+
+      <div class="split--even split">
+        <div class="panel">
+          <div class="panel__head"><h2 class="t-h3">Laporan terbaru saya</h2><a class="link t-label" th:href="@{/laporan/saya}">Lihat semua</a></div>
+          <div class="rows" th:unless="${#lists.isEmpty(laporanSaya)}">
+            <th:block th:each="l : ${laporanSaya}"><a th:replace="~{fragments/cards :: row(${l})}"></a></th:block>
+          </div>
+          <p class="muted" th:if="${#lists.isEmpty(laporanSaya)}">Belum ada laporan. Mulai dengan tombol Lapor di atas.</p>
+        </div>
+        <div class="panel">
+          <div class="panel__head"><h2 class="t-h3">Klaim saya</h2><a class="link t-label" th:href="@{/klaim/saya}">Lihat semua</a></div>
+          <div class="rows" th:unless="${#lists.isEmpty(klaimSaya)}">
+            <a class="row" th:each="k : ${klaimSaya}" th:href="@{/laporan/{id}(id=${k.laporanTemuan.idLaporan})}">
+              <img th:src="${k.laporanTemuan.foto.url}" alt="" width="56" height="56">
+              <span><span class="row__title" th:text="${k.laporanTemuan.namaBarang}">Barang</span><br>
+                <span class="row__meta" th:text="'Diajukan ' + ${#temporals.format(k.tanggalPengajuan, 'd MMM yyyy')}">Diajukan</span></span>
+              <span th:class="'badge badge--' + ${k.status}" th:text="${k.status.label}">Status</span>
+            </a>
+          </div>
+          <p class="muted" th:if="${#lists.isEmpty(klaimSaya)}">Belum ada klaim. Temukan barangmu di halaman Cari barang.</p>
+        </div>
+      </div>
+
+      <div class="stack mt-2" th:unless="${#lists.isEmpty(temuanTerbaru)}">
+        <div class="panel__head"><h2 class="t-h2">Mungkin milikmu?</h2><a class="link t-label" th:href="@{/temuan}">Semua barang temuan</a></div>
+        <div class="cards">
+          <th:block th:each="l : ${temuanTerbaru}"><a th:replace="~{fragments/cards :: card(${l})}"></a></th:block>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer th:replace="~{fragments/layout :: footerSlim}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+</body>
+</html>

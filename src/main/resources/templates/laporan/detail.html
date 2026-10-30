@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${laporan.namaBarang})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main" th:with="isAdmin=${currentUser != null and currentUser.role == 'ADMIN'}">
+  <section class="page-head on-dark">
+    <div class="l-wrap page-head__inner">
+      <div class="page-head__copy">
+        <p class="page-head__eyebrow">
+          <span th:text="'Laporan ' + ${#strings.toLowerCase(laporan.jenisLaporan)} + ' #' + ${laporan.idLaporan}">Laporan temuan #1</span>
+          <span th:class="'badge badge--' + ${laporan.status}" th:text="${laporan.status.label}">Status</span>
+        </p>
+        <h1 class="t-h1" th:text="${laporan.namaBarang}">Nama barang</h1>
+        <p class="t-lead" th:text="${laporan.kategori.label} + ' · ' + ${laporan.lokasi} + ' · ' + ${#temporals.format(laporan.tanggalKejadian, 'd MMMM yyyy')}">Kategori · Lokasi · Tanggal</p>
+      </div>
+      <div class="page-head__actions">
+        <th:block th:if="${milikSaya and laporan.jenisLaporan == 'Kehilangan' and laporan.status.name() == 'DICARI'}">
+          <a class="btn btn--ghost" th:href="@{/laporan/hilang/{id}/edit(id=${laporan.idLaporan})}">Edit</a>
+          <form class="inline-form" th:action="@{/laporan/hilang/{id}/hapus(id=${laporan.idLaporan})}" method="post" data-confirm="Hapus laporan ini? Tindakan ini tidak bisa dibatalkan.">
+            <button class="btn btn--danger" type="submit" style="color: #ffb4a3">Hapus</button>
+          </form>
+        </th:block>
+        <a class="btn btn--ghost" th:if="${milikSaya and laporan.jenisLaporan == 'Temuan' and laporan.status.name() == 'DITEMUKAN'}"
+           th:href="@{/laporan/temuan/{id}/edit(id=${laporan.idLaporan})}">Edit</a>
+        <form class="inline-form" th:if="${isAdmin and laporan.status.name() == 'DIKLAIM'}" th:action="@{/admin/laporan/{id}/selesai(id=${laporan.idLaporan})}" method="post"
+              data-confirm="Tandai barang sudah diserahkan ke pemiliknya?">
+          <input type="hidden" name="kembali" value="detail">
+          <button class="btn" type="submit">Tandai selesai</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--sheet band--paper">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="l-wrap split">
+      <div class="stack">
+        <figure class="detail__photo"><img th:src="${laporan.foto.url}" th:alt="'Foto ' + ${laporan.namaBarang}" width="800" height="600"></figure>
+        <div class="panel panel--white">
+          <h2 class="t-h3">Detail barang</h2>
+          <p class="t-body" th:text="${laporan.deskripsi}">Deskripsi</p>
+          <dl class="facts">
+            <div><dt>Kategori</dt><dd th:text="${laporan.kategori.label}">Kategori</dd></div>
+            <div><dt th:text="${laporan.jenisLaporan == 'Temuan' ? 'Ditemukan di' : 'Lokasi terakhir'}">Lokasi</dt><dd th:text="${laporan.lokasi}">Lokasi</dd></div>
+            <div><dt th:text="${laporan.jenisLaporan == 'Temuan' ? 'Tanggal ditemukan' : 'Tanggal hilang'}">Tanggal</dt><dd th:text="${#temporals.format(laporan.tanggalKejadian, 'EEEE, d MMMM yyyy')}">Tanggal</dd></div>
+            <div><dt>Dilaporkan oleh</dt><dd th:text="${laporan.pelapor.nama}">Nama</dd></div>
+            <div th:if="${temuan != null}"><dt>Disimpan di</dt><dd th:text="${temuan.lokasiPenyimpanan}">Pos</dd></div>
+            <th:block th:if="${laporan.jenisLaporan == 'Kehilangan'}">
+              <div th:if="${laporan.ciriKhusus != null and !#strings.isEmpty(laporan.ciriKhusus)}"><dt>Ciri khusus</dt><dd th:text="${laporan.ciriKhusus}">Ciri</dd></div>
+              <div th:if="${(milikSaya or isAdmin) and laporan.kontakAlternatif != null and !#strings.isEmpty(laporan.kontakAlternatif)}"><dt>Kontak alternatif</dt><dd th:text="${laporan.kontakAlternatif}">Kontak</dd></div>
+            </th:block>
+          </dl>
+        </div>
+      </div>
+
+      <aside class="stack">
+        <!-- Fitur 5: klaim barang temuan -->
+        <div class="panel panel--dark on-dark" th:if="${temuan != null}">
+          <h2 class="t-h3">Ini barangmu?</h2>
+          <th:block th:if="${bisaKlaim}">
+            <p class="t-body">Jawab pertanyaan dari penemu. Admin akan mencocokkan jawabanmu sebelum barang diserahkan.</p>
+            <p class="chip"><span class="chip__dot"></span><span th:text="${temuan.pertanyaanVerifikasi}">Pertanyaan</span></p>
+            <form class="form" th:if="${currentUser != null and currentUser.role == 'PENGGUNA'}" th:action="@{/klaim}" method="post">
+              <input type="hidden" name="idTemuan" th:value="${temuan.idLaporan}">
+              <label class="field"><span class="field__label">Jawabanmu</span>
+                <textarea class="input" name="jawaban" maxlength="500" required placeholder="Tulis jawaban sejelas mungkin"></textarea></label>
+              <label class="field" th:unless="${#lists.isEmpty(kehilanganSaya)}"><span class="field__label">Tautkan laporan kehilangan (opsional)</span>
+                <select class="input" name="idKehilangan">
+                  <option value="">Tidak ditautkan</option>
+                  <option th:each="k : ${kehilanganSaya}" th:value="${k.idLaporan}" th:text="${k.namaBarang} + ' (' + ${k.lokasi} + ')'">Laporan</option>
+                </select>
+                <span class="field__hint" style="color: var(--color-9)">Status laporan kehilanganmu ikut diperbarui.</span></label>
+              <button class="btn" type="submit" style="justify-self:start">Ajukan klaim</button>
+            </form>
+            <a class="btn" th:if="${currentUser == null}" th:href="@{/login(next='/laporan/' + ${laporan.idLaporan})}" style="justify-self:start">Masuk untuk mengklaim</a>
+            <p class="t-small" th:if="${isAdmin}">Admin tidak dapat mengajukan klaim.</p>
+          </th:block>
+          <p class="t-body" th:if="${!bisaKlaim and milikSaya}">Ini laporan temuanmu. Terima kasih sudah membantu!</p>
+          <p class="t-body" th:if="${!bisaKlaim and !milikSaya}">Barang ini sudah diklaim pemiliknya dan tidak bisa diklaim lagi.</p>
+        </div>
+
+        <div class="panel panel--green" th:if="${temuan == null and !milikSaya}">
+          <h2 class="t-h3">Kamu menemukan barang ini?</h2>
+          <p class="t-body">Titipkan di pos terdekat, lalu buat laporan temuan supaya pemiliknya bisa mengklaim.</p>
+          <a class="btn btn--dark" th:href="@{/laporan/temuan/baru}" style="justify-self:start">Lapor temuan</a>
+        </div>
+        <div class="panel panel--green" th:if="${temuan == null and milikSaya and laporan.status.name() == 'DICARI'}">
+          <h2 class="t-h3">Sudah cek barang temuan?</h2>
+          <p class="t-body">Barangmu mungkin sudah dilaporkan penemu. Saat mengklaim, tautkan laporan ini.</p>
+          <a class="btn btn--dark" th:href="@{/cari(jenis='Temuan', kategori=${laporan.kategori})}" style="justify-self:start">Cari di barang temuan</a>
+        </div>
+
+        <!-- klaim yang masuk (untuk pelapor temuan dan Admin) -->
+        <div class="panel" th:if="${klaimList != null}">
+          <h2 class="t-h3">Klaim masuk</h2>
+          <p class="muted" th:if="${#lists.isEmpty(klaimList)}">Belum ada klaim.</p>
+          <ul class="rows" th:unless="${#lists.isEmpty(klaimList)}">
+            <li class="row" th:each="k : ${klaimList}" style="grid-template-columns: 1fr auto">
+              <span><span class="row__title" th:text="${k.pengklaim.nama}">Nama</span><br>
+                <span class="row__meta" th:text="${#temporals.format(k.tanggalPengajuan, 'd MMM yyyy, HH:mm')}">Tanggal</span></span>
+              <a th:if="${isAdmin}" th:href="@{/admin/klaim/{id}(id=${k.idKlaim})}" th:class="'badge badge--' + ${k.status}" th:text="${k.status.label}">Status</a>
+              <span th:unless="${isAdmin}" th:class="'badge badge--' + ${k.status}" th:text="${k.status.label}">Status</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Fitur 6: riwayat status -->
+        <div class="panel">
+          <h2 class="t-h3">Riwayat status</h2>
+          <ol class="timeline">
+            <li th:each="r : ${laporan.riwayat}">
+              <span class="t-label" th:text="${r.deskripsi}">Status berubah</span>
+              <span class="t-small" th:if="${r.keterangan != null}" th:text="${r.keterangan}">Keterangan</span>
+              <span class="timeline__when" th:text="${#temporals.format(r.waktu, 'd MMM yyyy, HH:mm')} + ' · ' + ${r.diubahOleh.nama}">Waktu · oleh</span>
+            </li>
+          </ol>
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
+<footer th:replace="~{fragments/layout :: footerSlim}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+</body>
+</html>

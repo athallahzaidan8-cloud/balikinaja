@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Laporan saya')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main">
+  <section class="page-head on-dark">
+    <div class="l-wrap page-head__inner">
+      <div class="page-head__copy">
+        <h1 class="t-h1">Laporan saya</h1>
+        <p class="t-lead">Pantau status setiap laporan. Buka detailnya untuk melihat riwayat lengkap.</p>
+      </div>
+      <a class="btn" th:href="@{/lapor}">Lapor barang</a>
+    </div>
+  </section>
+  <section class="band band--sheet band--paper">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="l-wrap">
+      <div class="table-wrap" th:unless="${#lists.isEmpty(laporanList)}">
+        <table class="table">
+          <thead><tr><th>Barang</th><th>Jenis</th><th>Tanggal</th><th>Status</th><th>Perubahan terakhir</th></tr></thead>
+          <tbody>
+            <tr th:each="l : ${laporanList}" th:with="akhir=${l.riwayat[#lists.size(l.riwayat) - 1]}">
+              <td><a class="table__item" th:href="@{/laporan/{id}(id=${l.idLaporan})}"><img th:src="${l.foto.url}" alt="" width="48" height="48"><span th:text="${l.namaBarang}">Barang</span></a></td>
+              <td th:text="${l.jenisLaporan}">Jenis</td>
+              <td th:text="${#temporals.format(l.tanggalKejadian, 'd MMM yyyy')}">Tanggal</td>
+              <td><span th:class="'badge badge--' + ${l.status}" th:text="${l.status.label}">Status</span></td>
+              <td class="t-small" th:text="${#temporals.format(akhir.waktu, 'd MMM, HH:mm')} + ' · ' + ${akhir.keterangan}">Waktu</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <th:block th:if="${#lists.isEmpty(laporanList)}"><div th:replace="~{fragments/cards :: empty('Belum ada laporan', 'Laporan kehilangan dan temuan yang kamu buat akan tampil di sini.')}"></div></th:block>
+    </div>
+  </section>
+</main>
+<footer th:replace="~{fragments/layout :: footerSlim}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+</body>
+</html>

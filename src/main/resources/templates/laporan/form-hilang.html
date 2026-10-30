@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${asli == null ? 'Lapor kehilangan' : 'Edit laporan kehilangan'})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main">
+  <section class="page-head on-dark">
+    <div class="l-wrap page-head__copy">
+      <p class="page-head__eyebrow"><a class="link-2" th:href="@{/lapor}">Lapor barang</a> / Kehilangan</p>
+      <h1 class="t-h1" th:text="${asli == null ? 'Lapor barang hilang' : 'Edit laporan kehilangan'}">Lapor barang hilang</h1>
+      <p class="t-lead">Semakin lengkap ciri yang kamu tulis, semakin mudah penemu dan Admin mengenali barangmu.</p>
+    </div>
+  </section>
+
+  <section class="band band--sheet band--paper">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="l-wrap split">
+      <form class="panel panel--white form" th:object="${laporan}" method="post" enctype="multipart/form-data"
+            th:action="${asli == null} ? @{/laporan/hilang} : @{/laporan/hilang/{id}/edit(id=${asli.idLaporan})}">
+        <div class="form-grid">
+          <label class="field full"><span class="field__label">Nama barang <span class="req">*</span></span>
+            <input class="input" th:field="*{namaBarang}" maxlength="100" placeholder="Contoh: Dompet kulit cokelat" required></label>
+          <label class="field"><span class="field__label">Kategori <span class="req">*</span></span>
+            <select class="input" th:field="*{kategori}" required>
+              <option value="">Pilih kategori</option>
+              <option th:each="k : ${kategoriList}" th:value="${k}" th:text="${k.label}">Kategori</option>
+            </select></label>
+          <label class="field"><span class="field__label">Tanggal hilang <span class="req">*</span></span>
+            <input class="input" type="date" th:field="*{tanggalKejadian}" th:max="${hariIni}" required></label>
+          <label class="field full"><span class="field__label">Lokasi terakhir <span class="req">*</span></span>
+            <input class="input" th:field="*{lokasi}" maxlength="150" placeholder="Contoh: Gedung TULT lantai 3" required></label>
+          <label class="field full"><span class="field__label">Deskripsi barang <span class="req">*</span></span>
+            <textarea class="input" th:field="*{deskripsi}" maxlength="1000" placeholder="Warna, merek, isi, ukuran…" required></textarea></label>
+          <label class="field full"><span class="field__label">Ciri khusus</span>
+            <input class="input" th:field="*{ciriKhusus}" maxlength="500" placeholder="Contoh: ada gantungan bintang di resleting">
+            <span class="field__hint">Ciri yang hanya diketahui pemilik membantu saat klaim.</span></label>
+          <label class="field full"><span class="field__label">Kontak alternatif</span>
+            <input class="input" th:field="*{kontakAlternatif}" maxlength="50" placeholder="Contoh: ID LINE atau WhatsApp lain"></label>
+          <div class="field full">
+            <span class="field__label">Foto barang <span class="req" th:if="${asli == null}">*</span></span>
+            <label class="upload" th:classappend="${asli != null} ? 'has-file'">
+              <input type="file" name="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" th:required="${asli == null}">
+              <img th:src="${asli != null ? asli.foto.url : ''}" alt="" th:hidden="${asli == null}">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16l4-4 3 3 5-5 4 4M4 6h16v12H4z"/></svg>
+              <span class="t-label" data-upload-label th:text="${asli == null ? 'Klik untuk memilih foto' : 'Klik untuk mengganti foto (opsional)'}">Klik untuk memilih foto</span>
+              <span class="field__hint">JPG, JPEG, atau PNG. Maksimal 10 MB.</span>
+            </label>
+          </div>
+        </div>
+        <div class="form__actions">
+          <button class="btn" type="submit" th:text="${asli == null ? 'Kirim laporan' : 'Simpan perubahan'}">Kirim laporan</button>
+          <a class="link t-label" th:href="${asli == null} ? @{/lapor} : @{/laporan/{id}(id=${asli.idLaporan})}">Batal</a>
+        </div>
+      </form>
+
+      <aside class="stack">
+        <div class="panel panel--dark on-dark">
+          <h2 class="t-h3">Setelah laporan dikirim</h2>
+          <ol class="timeline">
+            <li><span class="t-label">Status: Dicari</span><span class="t-small">Laporanmu tampil di halaman Cari barang.</span></li>
+            <li><span class="t-label">Temukan &amp; klaim</span><span class="t-small">Cek barang temuan. Saat mengklaim, tautkan laporan ini.</span></li>
+            <li><span class="t-label">Diklaim → Selesai</span><span class="t-small">Setelah Admin menyetujui, ambil barang di lokasi penyimpanan.</span></li>
+          </ol>
+        </div>
+        <div class="panel">
+          <h2 class="t-h3">Tips foto</h2>
+          <p class="t-body muted">Belum punya foto barangnya? Unggah foto barang yang serupa atau foto lama yang memperlihatkan barangmu.</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
+<footer th:replace="~{fragments/layout :: footerSlim}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+</body>
+</html>

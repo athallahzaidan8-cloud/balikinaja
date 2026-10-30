@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${asli == null ? 'Lapor temuan' : 'Edit laporan temuan'})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main">
+  <section class="page-head on-dark">
+    <div class="l-wrap page-head__copy">
+      <p class="page-head__eyebrow"><a class="link-2" th:href="@{/lapor}">Lapor barang</a> / Temuan</p>
+      <h1 class="t-h1" th:text="${asli == null ? 'Lapor barang temuan' : 'Edit laporan temuan'}">Lapor barang temuan</h1>
+      <p class="t-lead">Terima kasih sudah peduli. Titipkan barangnya di tempat yang aman, lalu isi laporan ini.</p>
+    </div>
+  </section>
+
+  <section class="band band--sheet band--paper">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="l-wrap split">
+      <form class="panel panel--white form" th:object="${laporan}" method="post" enctype="multipart/form-data"
+            th:action="${asli == null} ? @{/laporan/temuan} : @{/laporan/temuan/{id}/edit(id=${asli.idLaporan})}">
+        <div class="form-grid">
+          <label class="field full"><span class="field__label">Nama barang <span class="req">*</span></span>
+            <input class="input" th:field="*{namaBarang}" maxlength="100" placeholder="Contoh: Kunci motor dengan gantungan biru" required></label>
+          <label class="field"><span class="field__label">Kategori <span class="req">*</span></span>
+            <select class="input" th:field="*{kategori}" required>
+              <option value="">Pilih kategori</option>
+              <option th:each="k : ${kategoriList}" th:value="${k}" th:text="${k.label}">Kategori</option>
+            </select></label>
+          <label class="field"><span class="field__label">Tanggal ditemukan <span class="req">*</span></span>
+            <input class="input" type="date" th:field="*{tanggalKejadian}" th:max="${hariIni}" required></label>
+          <label class="field"><span class="field__label">Ditemukan di <span class="req">*</span></span>
+            <input class="input" th:field="*{lokasi}" maxlength="150" placeholder="Contoh: Parkiran Gedung Selaru" required></label>
+          <label class="field"><span class="field__label">Disimpan di <span class="req">*</span></span>
+            <input class="input" th:field="*{lokasiPenyimpanan}" maxlength="150" placeholder="Contoh: Pos Satpam Gerbang Utama" required></label>
+          <label class="field full"><span class="field__label">Deskripsi barang <span class="req">*</span></span>
+            <textarea class="input" th:field="*{deskripsi}" maxlength="1000" placeholder="Ceritakan barangnya secara umum, tanpa membocorkan ciri rahasia." required></textarea></label>
+        </div>
+
+        <div class="panel" style="gap:1rem">
+          <div>
+            <h2 class="t-h3">Pertanyaan verifikasi</h2>
+            <p class="t-small">Pemilik harus menjawab pertanyaan ini saat mengklaim. Jawabanmu disimpan rahasia dan tidak pernah ditampilkan ke publik.</p>
+          </div>
+          <label class="field"><span class="field__label">Pertanyaan <span class="req">*</span></span>
+            <input class="input" th:field="*{pertanyaanVerifikasi}" maxlength="200" placeholder="Contoh: Gantungan kuncinya berbentuk apa?" required></label>
+          <label class="field"><span class="field__label">Jawaban <span class="req" th:if="${asli == null}">*</span></span>
+            <input class="input" name="jawabanVerifikasi" maxlength="200" autocomplete="off" th:required="${asli == null}"
+                   th:placeholder="${asli == null ? 'Contoh: ikan' : 'Kosongkan bila jawaban tidak diubah'}"></label>
+        </div>
+
+        <div class="field">
+          <span class="field__label">Foto barang <span class="req" th:if="${asli == null}">*</span></span>
+          <label class="upload" th:classappend="${asli != null} ? 'has-file'">
+            <input type="file" name="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" th:required="${asli == null}">
+            <img th:src="${asli != null ? asli.foto.url : ''}" alt="" th:hidden="${asli == null}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16l4-4 3 3 5-5 4 4M4 6h16v12H4z"/></svg>
+            <span class="t-label" data-upload-label th:text="${asli == null ? 'Klik untuk memilih foto' : 'Klik untuk mengganti foto (opsional)'}">Klik untuk memilih foto</span>
+            <span class="field__hint">JPG, JPEG, atau PNG. Maksimal 10 MB.</span>
+          </label>
+        </div>
+        <div class="form__actions">
+          <button class="btn" type="submit" th:text="${asli == null ? 'Kirim laporan' : 'Simpan perubahan'}">Kirim laporan</button>
+          <a class="link t-label" th:href="${asli == null} ? @{/lapor} : @{/laporan/{id}(id=${asli.idLaporan})}">Batal</a>
+        </div>
+      </form>
+
+      <aside class="stack">
+        <div class="panel panel--green">
+          <h2 class="t-h3">Pertanyaan yang baik</h2>
+          <p class="t-body">Tanyakan ciri yang tidak terlihat di foto, misalnya isi dompet, stiker di bagian bawah, atau warna gantungan.</p>
+          <div class="stack" style="gap:.5rem">
+            <p class="chip"><span class="chip__dot"></span>Stiker apa yang ada di bawah botol?</p>
+            <p class="chip"><span class="chip__dot"></span>Kartu apa yang ada di slot depan?</p>
+          </div>
+        </div>
+        <div class="panel panel--dark on-dark">
+          <h2 class="t-h3">Setelah laporan dikirim</h2>
+          <ol class="timeline">
+            <li><span class="t-label">Status: Ditemukan</span><span class="t-small">Barang tampil di halaman Barang temuan.</span></li>
+            <li><span class="t-label">Pemilik mengklaim</span><span class="t-small">Admin memeriksa jawaban verifikasi.</span></li>
+            <li><span class="t-label">Selesai</span><span class="t-small">Barang diambil di lokasi penyimpanan.</span></li>
+          </ol>
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
+<footer th:replace="~{fragments/layout :: footerSlim}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+</body>
+</html>

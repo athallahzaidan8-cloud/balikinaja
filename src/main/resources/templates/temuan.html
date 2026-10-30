@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Barang temuan')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main">
+  <section class="page-head on-dark">
+    <div class="l-wrap page-head__inner">
+      <div class="page-head__copy">
+        <h1 class="t-h1">Barang temuan</h1>
+        <p class="t-lead" th:text="${#lists.size(temuanList)} + ' barang menunggu pemiliknya. Buka detail barang untuk mengajukan klaim.'">Barang menunggu pemiliknya.</p>
+      </div>
+      <a class="btn" th:href="@{/cari(jenis='Temuan')}">Cari &amp; filter</a>
+    </div>
+  </section>
+  <section class="band band--sheet band--paper">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="l-wrap">
+      <div class="cards" th:unless="${#lists.isEmpty(temuanList)}">
+        <th:block th:each="l : ${temuanList}"><a th:replace="~{fragments/cards :: card(${l})}"></a></th:block>
+      </div>
+      <th:block th:if="${#lists.isEmpty(temuanList)}"><div th:replace="~{fragments/cards :: empty('Belum ada barang temuan', 'Barang yang dilaporkan penemu akan tampil di sini.')}"></div></th:block>
+    </div>
+  </section>
+</main>
+<footer th:replace="~{fragments/layout :: footerSlim}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+</body>
+</html>

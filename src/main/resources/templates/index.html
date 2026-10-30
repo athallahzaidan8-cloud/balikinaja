@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Barang hilang & temuan kampus')}"></head>
+<body>
+<a class="skip-link t-label" href="#main">Lewati ke konten</a>
+<header th:replace="~{fragments/layout :: nav}"></header>
+
+<main id="main">
+  <!-- hero: judul besar di atas navy, ponsel HTML berisi barang temuan terbaru -->
+  <section class="hero on-dark" aria-labelledby="hero-title">
+    <svg class="hero__lines" aria-hidden="true">
+      <ellipse class="hero__arc" cx="78%" cy="128%" rx="44%" ry="62%" pathLength="1"/>
+      <ellipse class="hero__arc" cx="40%" cy="168%" rx="80%" ry="94%" pathLength="1"/>
+      <ellipse class="hero__flow" cx="78%" cy="128%" rx="44%" ry="62%" pathLength="1"/>
+      <ellipse class="hero__flow" cx="40%" cy="168%" rx="80%" ry="94%" pathLength="1"/>
+    </svg>
+    <div class="l-wrap hero__grid">
+      <div class="hero__copy">
+        <h1 class="t-display hero__title" id="hero-title">Barang hilang di kampus? <em>Balikin aja.</em></h1>
+        <p class="t-lead hero__lead">BalikinAja mempertemukan barang yang hilang dengan pemiliknya di lingkungan Telkom University. Lapor, cari, lalu klaim dengan verifikasi Admin, semuanya di satu tempat.</p>
+        <ul class="hero__proof t-label">
+          <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7"/></svg>Foto wajib di setiap laporan</li>
+          <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7"/></svg>Klaim diverifikasi Admin</li>
+          <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7"/></svg>Riwayat status tercatat</li>
+        </ul>
+        <div class="hero__actions">
+          <a class="btn" th:href="${currentUser == null ? '/register' : '/lapor'}" th:text="${currentUser == null ? 'Daftar & lapor barang' : 'Lapor barang'}">Daftar &amp; lapor barang</a>
+          <a class="link t-label" th:href="@{/temuan}">Lihat barang temuan</a>
+        </div>
+      </div>
+
+      <div class="hero__device" aria-hidden="true">
+        <div class="phone">
+          <div class="phone__screen">
+            <div class="phone__top">
+              <div>
+                <p class="phone__title">Barang temuan</p>
+                <p class="phone__sub"><span class="chip__dot"></span><span th:text="${jumlahTemuan} + ' menunggu pemiliknya'">0 menunggu pemiliknya</span></p>
+              </div>
+            </div>
+            <p class="phone__search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>Cari dompet, kunci, KTM…</p>
+            <ul class="phone__list">
+              <li class="phone__item" th:each="t : ${temuanTerbaru}" th:if="${tStat.index < 4}">
+                <img th:src="${t.foto.url}" alt="">
+                <span><span class="phone__name" th:text="${t.namaBarang}">Barang</span><br><span class="phone__meta" th:text="${t.lokasi}">Lokasi</span></span>
+              </li>
+              <li class="phone__item" th:if="${#lists.isEmpty(temuanTerbaru)}">
+                <span class="phone__thumb"></span>
+                <span><span class="phone__name">Belum ada barang temuan</span><br><span class="phone__meta">Laporan baru akan muncul di sini</span></span>
+              </li>
+            </ul>
+            <div class="phone__bar">
+              <span><svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>Beranda</span>
+              <span><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>Cari</span>
+              <span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Lapor</span>
+              <span><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>Akun</span>
+            </div>
+          </div>
+        </div>
+        <p class="chip hero__float hero__float--1" th:if="${!#lists.isEmpty(temuanTerbaru)}"><span class="chip__dot"></span><span th:text="${temuanTerbaru[0].namaBarang} + ' ditemukan'">Dompet ditemukan</span></p>
+        <p class="chip chip--green hero__float hero__float--2"><span class="chip__dot"></span>Klaim disetujui, ambil di pos</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- angka langsung dari database -->
+  <section class="band band--sheet band--paper" aria-labelledby="angka-title">
+    <div class="l-wrap">
+      <div class="band__head">
+        <h2 class="t-h1" id="angka-title">Satu tempat untuk semua barang yang tercecer.</h2>
+        <p class="t-lead">Tidak perlu lagi menyebar info di banyak grup. Semua laporan tercatat rapi dan bisa dicari kapan saja.</p>
+      </div>
+      <div class="stats">
+        <div class="stat stat--green"><span class="stat__num" th:text="${jumlahTemuan}">0</span><span class="t-label">barang temuan menunggu pemiliknya</span></div>
+        <div class="stat stat--navy"><span class="stat__num" th:text="${jumlahDicari}">0</span><span class="t-label">barang sedang dicari pemiliknya</span></div>
+        <div class="stat stat--dark"><span class="stat__num" th:text="${jumlahSelesai}">0</span><span class="t-label">barang sudah kembali ke pemiliknya</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- cara kerja: tiga kartu bertumpuk -->
+  <section class="band band--sheet band--deep" id="cara-kerja" aria-labelledby="langkah-title">
+    <div class="l-wrap">
+      <div class="band__head">
+        <h2 class="t-h1" id="langkah-title">Tiga langkah sampai barang kembali.</h2>
+        <p class="t-lead">Pemilik dan penemu tidak perlu saling kenal. Admin memastikan barang diserahkan ke orang yang benar.</p>
+      </div>
+      <ol class="steps">
+        <li class="step" style="--i:0">
+          <p class="step__num" aria-hidden="true">1</p>
+          <div class="step__copy"><h3 class="t-h3">Lapor dengan foto</h3><p class="t-body">Kehilangan barang? Buat laporan kehilangan. Menemukan barang? Buat laporan temuan, simpan barangnya di pos, dan tulis satu pertanyaan tentang ciri barang.</p></div>
+          <div class="step__ui" aria-hidden="true">
+            <p class="step__check"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>Foto barang diunggah</p>
+            <p class="step__check"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>Lokasi &amp; tanggal dicatat</p>
+            <p class="step__check"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>Pertanyaan verifikasi siap</p>
+          </div>
+        </li>
+        <li class="step" style="--i:1">
+          <p class="step__num" aria-hidden="true">2</p>
+          <div class="step__copy"><h3 class="t-h3">Cari, lalu klaim</h3><p class="t-body">Saring barang berdasarkan kategori, lokasi, dan tanggal. Ketemu barangmu? Ajukan klaim dengan menjawab pertanyaan ciri barang dari penemu.</p></div>
+          <div class="step__ui" aria-hidden="true">
+            <p class="chip"><span class="chip__dot"></span>Gantungan kuncinya berbentuk apa?</p>
+            <p class="chip chip--green"><span class="chip__dot"></span>Bentuk ikan, warnanya biru.</p>
+          </div>
+        </li>
+        <li class="step on-dark" style="--i:2">
+          <p class="step__num" aria-hidden="true">3</p>
+          <div class="step__copy"><h3 class="t-h3">Diverifikasi, lalu diambil</h3><p class="t-body">Admin mencocokkan jawabanmu. Setelah disetujui, ambil barang di lokasi penyimpanan. Status laporan berubah sampai Selesai.</p></div>
+          <div class="step__ui" aria-hidden="true">
+            <p class="step__check"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>Dicari → Ditemukan</p>
+            <p class="step__check"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>Diklaim → Selesai</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- fitur -->
+  <section class="band band--sheet band--navy on-dark" aria-labelledby="fitur-title">
+    <div class="l-wrap">
+      <div class="band__head">
+        <h2 class="t-h1" id="fitur-title">Semua yang dibutuhkan, tidak lebih.</h2>
+        <p class="t-lead">Enam fitur inti BalikinAja, dari daftar akun sampai barang kembali ke tangan pemiliknya.</p>
+      </div>
+      <ul class="features">
+        <li class="feature"><span class="feature__no">01</span><h3 class="t-h3">Login &amp; registrasi</h3><p class="t-body">Akun untuk mahasiswa, dosen, dan staf. Admin diarahkan ke dashboard-nya sendiri.</p></li>
+        <li class="feature"><span class="feature__no">02</span><h3 class="t-h3">Lapor barang hilang</h3><p class="t-body">Catat nama barang, kategori, lokasi, tanggal, ciri khusus, dan fotonya.</p></li>
+        <li class="feature"><span class="feature__no">03</span><h3 class="t-h3">Lapor barang temuan</h3><p class="t-body">Unggah foto, tulis lokasi penyimpanan, dan buat pertanyaan verifikasi rahasia.</p></li>
+        <li class="feature"><span class="feature__no">04</span><h3 class="t-h3">Cari &amp; filter</h3><p class="t-body">Kata kunci ditambah filter kategori, lokasi, dan rentang tanggal.</p></li>
+        <li class="feature"><span class="feature__no">05</span><h3 class="t-h3">Klaim &amp; verifikasi</h3><p class="t-body">Pemilik menjawab pertanyaan ciri barang, Admin menyetujui atau menolak.</p></li>
+        <li class="feature"><span class="feature__no">06</span><h3 class="t-h3">Status &amp; riwayat</h3><p class="t-body">Setiap perubahan status tercatat: siapa, kapan, dan dari status apa.</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- barang temuan terbaru -->
+  <section class="band band--sheet band--paper" aria-labelledby="terbaru-title">
+    <div class="l-wrap">
+      <div class="band__head">
+        <h2 class="t-h1" id="terbaru-title">Baru saja ditemukan.</h2>
+        <div class="stack">
+          <p class="t-lead">Mungkin salah satunya milikmu. Buka detailnya untuk mengajukan klaim.</p>
+          <a class="link t-label" th:href="@{/temuan}">Lihat semua barang temuan</a>
+        </div>
+      </div>
+      <div class="cards" th:unless="${#lists.isEmpty(temuanTerbaru)}">
+        <th:block th:each="l : ${temuanTerbaru}"><a th:replace="~{fragments/cards :: card(${l})}"></a></th:block>
+      </div>
+      <th:block th:if="${#lists.isEmpty(temuanTerbaru)}"><div th:replace="~{fragments/cards :: empty('Belum ada barang temuan', 'Laporan temuan terbaru akan tampil di sini.')}"></div></th:block>
+    </div>
+  </section>
+
+  <!-- pertanyaan -->
+  <section class="band band--sheet band--deep" id="pertanyaan" aria-labelledby="faq-title">
+    <div class="l-wrap faq">
+      <div class="stack">
+        <h2 class="t-h1" id="faq-title">Pertanyaan, dijawab singkat.</h2>
+        <p class="t-body muted">Masih bingung? Tanyakan langsung ke Admin di Direktorat Kemahasiswaan.</p>
+      </div>
+      <div class="faq__list">
+        <details class="faq__item"><summary class="t-h3">Siapa saja yang bisa memakai BalikinAja?<span class="faq__icon" aria-hidden="true"></span></summary><p>Semua warga kampus: mahasiswa, dosen, dan staf. Cukup daftar dengan email dan NIM/NIP.</p></details>
+        <details class="faq__item"><summary class="t-h3">Kenapa foto barang wajib diunggah?<span class="faq__icon" aria-hidden="true"></span></summary><p>Foto memudahkan pemilik mengenali barangnya. Format JPG, JPEG, atau PNG dengan ukuran maksimal 10 MB.</p></details>
+        <details class="faq__item"><summary class="t-h3">Bagaimana kalau ada yang mengaku-ngaku pemilik?<span class="faq__icon" aria-hidden="true"></span></summary><p>Penemu menulis pertanyaan tentang ciri barang, dan jawabannya tidak pernah ditampilkan ke publik. Admin memeriksa jawaban setiap klaim sebelum menyetujuinya.</p></details>
+        <details class="faq__item"><summary class="t-h3">Di mana barangnya diambil?<span class="faq__icon" aria-hidden="true"></span></summary><p>Di lokasi penyimpanan yang ditulis penemu, misalnya pos satpam. Setelah barang diserahkan, Admin menandai laporan sebagai Selesai.</p></details>
+        <details class="faq__item"><summary class="t-h3">Apa arti status Dicari, Ditemukan, Diklaim, dan Selesai?<span class="faq__icon" aria-hidden="true"></span></summary><p>Dicari: barang masih dicari pemiliknya. Ditemukan: barang sudah ada dan menunggu diklaim. Diklaim: klaim disetujui dan barang menunggu diambil. Selesai: barang sudah kembali ke pemiliknya.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--sheet band--paper" aria-labelledby="cta-title">
+    <div class="l-wrap">
+      <div class="cta">
+        <h2 class="t-h1" id="cta-title">Ada barang yang hilang, atau baru kamu temukan?</h2>
+        <p class="t-lead">Buat laporan sekarang. Semakin cepat dilaporkan, semakin besar peluang barang kembali.</p>
+        <a class="btn btn--dark" th:href="${currentUser == null ? '/register' : '/lapor'}">Mulai lapor</a>
+      </div>
+    </div>
+    <div style="height: var(--radius-1)"></div>
+  </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+</body>
+</html>

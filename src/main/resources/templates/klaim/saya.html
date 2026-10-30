@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Klaim saya')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main">
+  <section class="page-head on-dark">
+    <div class="l-wrap page-head__copy">
+      <h1 class="t-h1">Klaim saya</h1>
+      <p class="t-lead">Status klaim atas barang temuan. Jika disetujui, ambil barang di lokasi penyimpanan yang tertera.</p>
+    </div>
+  </section>
+  <section class="band band--sheet band--paper">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="l-wrap">
+      <div class="cards" th:unless="${#lists.isEmpty(klaimList)}">
+        <article class="card" th:each="k : ${klaimList}">
+          <a class="card__media" th:href="@{/laporan/{id}(id=${k.laporanTemuan.idLaporan})}">
+            <img th:src="${k.laporanTemuan.foto.url}" th:alt="'Foto ' + ${k.laporanTemuan.namaBarang}" width="400" height="300">
+            <span class="card__badges"><span th:class="'badge badge--' + ${k.status}" th:text="${k.status.label}">Status</span></span>
+          </a>
+          <div class="card__body">
+            <h2 class="t-h3"><a class="link-2" th:href="@{/laporan/{id}(id=${k.laporanTemuan.idLaporan})}" th:text="${k.laporanTemuan.namaBarang}">Barang</a></h2>
+            <p class="t-small" th:text="'Diajukan ' + ${#temporals.format(k.tanggalPengajuan, 'd MMM yyyy, HH:mm')}">Diajukan</p>
+            <p class="t-body"><span class="muted">Jawabanmu:</span> <span th:text="${k.jawabanCiri}">Jawaban</span></p>
+            <p class="alert alert--ok" th:if="${k.status.name() == 'DISETUJUI'}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>
+              <span th:text="'Ambil di ' + ${k.laporanTemuan.lokasiPenyimpanan} + '.'">Ambil di pos</span></p>
+            <p class="alert alert--err" th:if="${k.status.name() == 'DITOLAK'}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16h.01"/></svg>
+              <span th:text="${k.catatanAdmin}">Alasan</span></p>
+            <p class="t-small" th:if="${k.laporanKehilangan != null}" th:text="'Ditautkan ke laporan: ' + ${k.laporanKehilangan.namaBarang}">Ditautkan</p>
+          </div>
+        </article>
+      </div>
+      <th:block th:if="${#lists.isEmpty(klaimList)}"><div th:replace="~{fragments/cards :: empty('Belum ada klaim', 'Buka barang temuan yang mirip milikmu, lalu ajukan klaim dari halaman detailnya.')}"></div></th:block>
+    </div>
+  </section>
+</main>
+<footer th:replace="~{fragments/layout :: footerSlim}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+</body>
+</html>

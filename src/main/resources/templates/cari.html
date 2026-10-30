@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Cari barang')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main">
+  <section class="page-head on-dark">
+    <div class="l-wrap page-head__copy">
+      <h1 class="t-h1">Cari barang</h1>
+      <p class="t-lead">Cari dengan kata kunci, lalu saring berdasarkan kategori, lokasi, dan tanggal.</p>
+    </div>
+  </section>
+  <section class="band band--sheet band--paper">
+    <div class="l-wrap stack">
+      <form class="filters" th:action="@{/cari}" method="get" role="search">
+        <input type="hidden" name="jenis" th:value="${jenis}">
+        <label class="field field--q"><span class="field__label">Kata kunci</span>
+          <input class="input" name="q" th:value="${q}" placeholder="Dompet, kunci, charger…"></label>
+        <label class="field"><span class="field__label">Kategori</span>
+          <select class="input" name="kategori">
+            <option value="">Semua</option>
+            <option th:each="k : ${kategoriList}" th:value="${k}" th:text="${k.label}" th:selected="${k == kategori}">Kategori</option>
+          </select></label>
+        <label class="field"><span class="field__label">Lokasi</span>
+          <input class="input" name="lokasi" th:value="${lokasi}" placeholder="TULT, kantin…"></label>
+        <label class="field"><span class="field__label">Dari tanggal</span>
+          <input class="input" type="date" name="dari" th:value="${dari}"></label>
+        <label class="field"><span class="field__label">Sampai</span>
+          <input class="input" type="date" name="sampai" th:value="${sampai}"></label>
+        <button class="btn" type="submit">Cari</button>
+      </form>
+
+      <div class="panel__head">
+        <nav class="tabs" aria-label="Jenis laporan">
+          <a class="tab" th:href="@{/cari(q=${q}, kategori=${kategori}, lokasi=${lokasi}, dari=${dari}, sampai=${sampai})}" th:attr="aria-current=${jenis == null or #strings.isEmpty(jenis)}">Semua</a>
+          <a class="tab" th:href="@{/cari(jenis='Temuan', q=${q}, kategori=${kategori}, lokasi=${lokasi}, dari=${dari}, sampai=${sampai})}" th:attr="aria-current=${jenis == 'Temuan'}">Barang temuan</a>
+          <a class="tab" th:href="@{/cari(jenis='Kehilangan', q=${q}, kategori=${kategori}, lokasi=${lokasi}, dari=${dari}, sampai=${sampai})}" th:attr="aria-current=${jenis == 'Kehilangan'}">Barang hilang</a>
+        </nav>
+        <p class="t-label">
+          <span th:text="${#lists.size(hasil)} + ' laporan'">0 laporan</span>
+          <a class="link" th:if="${adaFilter}" th:href="@{/cari}" style="margin-left:1rem">Hapus filter</a>
+        </p>
+      </div>
+
+      <div class="cards" th:unless="${#lists.isEmpty(hasil)}">
+        <th:block th:each="l : ${hasil}"><a th:replace="~{fragments/cards :: card(${l})}"></a></th:block>
+      </div>
+      <th:block th:if="${#lists.isEmpty(hasil)}"><div th:replace="~{fragments/cards :: empty('Tidak ada laporan yang cocok', 'Coba kata kunci lain atau hapus beberapa filter.')}"></div></th:block>
+    </div>
+  </section>
+</main>
+<footer th:replace="~{fragments/layout :: footerSlim}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Masuk')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main class="auth" id="main">
+  <section class="auth__side on-dark">
+    <p class="chip"><span class="chip__dot"></span>Ada yang menemukan dompetmu?</p>
+    <h1 class="t-display">Selamat datang kembali.</h1>
+    <p class="t-lead">Masuk untuk melapor barang, mengajukan klaim, dan memantau status laporanmu.</p>
+  </section>
+  <section class="auth__main">
+    <div class="auth__card">
+      <div class="stack" style="gap:.5rem">
+        <h2 class="t-h2">Masuk ke BalikinAja</h2>
+        <p class="muted">Belum punya akun? <a class="link" th:href="@{/register}">Daftar gratis</a></p>
+      </div>
+      <p class="alert alert--err" th:if="${error != null}" role="alert"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16h.01"/></svg><span th:text="${error}">Error</span></p>
+      <p class="alert alert--info" th:if="${next != null and error == null}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><span>Silakan masuk dulu untuk melanjutkan.</span></p>
+      <form class="form" th:action="@{/login}" method="post">
+        <input type="hidden" name="next" th:value="${next}">
+        <label class="field"><span class="field__label">Email</span>
+          <input class="input" type="email" name="email" th:value="${email}" autocomplete="email" required autofocus></label>
+        <label class="field"><span class="field__label">Password</span>
+          <input class="input" type="password" name="password" autocomplete="current-password" required></label>
+        <div class="form__actions"><button class="btn" type="submit">Masuk</button></div>
+      </form>
+      <div class="demo-accounts" th:if="${tampilkanAkunDemo}">
+        <p class="t-label">Akun demo</p>
+        <p>Admin: <code>admin@balikinaja.id</code> / <code>admin12345</code></p>
+        <p>Pengguna: <code>rani@student.telkomuniversity.ac.id</code> / <code>rani12345</code></p>
+        <p>Pengguna: <code>dimas@student.telkomuniversity.ac.id</code> / <code>dimas12345</code></p>
+      </div>
+    </div>
+  </section>
+</main>
+<footer th:replace="~{fragments/layout :: footerSlim}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+</body>
+</html>

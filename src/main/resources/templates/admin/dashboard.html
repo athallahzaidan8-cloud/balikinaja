@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Dashboard Admin')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main">
+  <section class="page-head page-head--dark on-dark">
+    <div class="l-wrap page-head__inner">
+      <div class="page-head__copy">
+        <p class="page-head__eyebrow" th:text="'Admin · ' + ${currentUser.unitKerja}">Admin</p>
+        <h1 class="t-h1" th:text="'Halo, ' + ${currentUser.namaDepan} + '.'">Halo, Admin.</h1>
+        <p class="t-lead" th:text="${jumlahKlaimMenunggu} + ' klaim menunggu verifikasi dan ' + ${#lists.size(serahTerima)} + ' barang menunggu serah terima.'">Ringkasan</p>
+      </div>
+      <a class="btn" th:href="@{/admin/klaim}">Verifikasi klaim</a>
+    </div>
+  </section>
+
+  <section class="band band--sheet band--paper">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="l-wrap stack">
+      <div class="stats">
+        <a class="stat stat--navy" th:href="@{/admin/laporan(status='DICARI')}" style="text-decoration:none"><span class="stat__num" th:text="${jumlahDicari}">0</span><span class="t-label">Dicari</span></a>
+        <a class="stat stat--green" th:href="@{/admin/laporan(status='DITEMUKAN')}" style="text-decoration:none"><span class="stat__num" th:text="${jumlahDitemukan}">0</span><span class="t-label">Ditemukan</span></a>
+        <a class="stat" th:href="@{/admin/laporan(status='DIKLAIM')}" style="text-decoration:none"><span class="stat__num" th:text="${jumlahDiklaim}">0</span><span class="t-label">Diklaim</span></a>
+        <a class="stat stat--dark" th:href="@{/admin/laporan(status='SELESAI')}" style="text-decoration:none"><span class="stat__num" th:text="${jumlahSelesai}">0</span><span class="t-label">Selesai</span></a>
+      </div>
+
+      <div class="split split--even">
+        <div class="panel">
+          <div class="panel__head"><h2 class="t-h3">Klaim menunggu verifikasi</h2><a class="link t-label" th:href="@{/admin/klaim}">Semua</a></div>
+          <div class="rows" th:unless="${#lists.isEmpty(klaimMenunggu)}">
+            <a class="row" th:each="k : ${klaimMenunggu}" th:href="@{/admin/klaim/{id}(id=${k.idKlaim})}">
+              <img th:src="${k.laporanTemuan.foto.url}" alt="" width="56" height="56">
+              <span><span class="row__title" th:text="${k.laporanTemuan.namaBarang}">Barang</span><br>
+                <span class="row__meta" th:text="'Oleh ' + ${k.pengklaim.nama} + ' · ' + ${#temporals.format(k.tanggalPengajuan, 'd MMM, HH:mm')}">Oleh</span></span>
+              <span class="btn btn--sm btn--dark">Periksa</span>
+            </a>
+          </div>
+          <p class="muted" th:if="${#lists.isEmpty(klaimMenunggu)}">Tidak ada klaim yang menunggu.</p>
+        </div>
+
+        <div class="panel">
+          <div class="panel__head"><h2 class="t-h3">Menunggu serah terima</h2></div>
+          <p class="t-small">Klaim sudah disetujui. Tandai selesai setelah barang diambil pemiliknya.</p>
+          <ul class="rows" th:unless="${#lists.isEmpty(serahTerima)}">
+            <li class="row" th:each="l : ${serahTerima}">
+              <img th:src="${l.foto.url}" alt="" width="56" height="56">
+              <span><a class="row__title link-2" th:href="@{/laporan/{id}(id=${l.idLaporan})}" th:text="${l.namaBarang}">Barang</a><br>
+                <span class="row__meta" th:text="${l.jenisLaporan} + ' · ' + ${l.lokasi}">Jenis</span></span>
+              <form th:action="@{/admin/laporan/{id}/selesai(id=${l.idLaporan})}" method="post" data-confirm="Tandai barang sudah diserahkan ke pemiliknya?">
+                <button class="btn btn--sm" type="submit">Selesai</button>
+              </form>
+            </li>
+          </ul>
+          <p class="muted" th:if="${#lists.isEmpty(serahTerima)}">Tidak ada barang yang menunggu diambil.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer th:replace="~{fragments/layout :: footerSlim}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+</body>
+</html>

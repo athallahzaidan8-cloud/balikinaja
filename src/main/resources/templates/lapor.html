@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Lapor barang')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main">
+  <section class="page-head on-dark">
+    <div class="l-wrap page-head__copy">
+      <h1 class="t-h1">Apa yang ingin kamu laporkan?</h1>
+      <p class="t-lead">Pilih salah satu. Keduanya wajib menyertakan foto barang.</p>
+    </div>
+  </section>
+  <section class="band band--sheet band--paper">
+    <div class="l-wrap">
+      <ol class="steps">
+        <li class="step" style="position:static; background: var(--color-3)">
+          <p class="step__num" aria-hidden="true">?</p>
+          <div class="step__copy">
+            <h2 class="t-h2">Saya kehilangan barang</h2>
+            <p class="t-body">Buat laporan kehilangan agar penemu bisa mengenali barangmu, lalu pantau statusnya sampai barang kembali.</p>
+            <a class="btn btn--dark" th:href="@{/laporan/hilang/baru}" style="justify-self:start">Lapor kehilangan</a>
+          </div>
+          <div class="step__ui" aria-hidden="true">
+            <p class="chip"><span class="chip__dot"></span>Dompet cokelat, hilang di TULT</p>
+            <span class="badge badge--DICARI">Dicari</span>
+          </div>
+        </li>
+        <li class="step" style="position:static">
+          <p class="step__num" aria-hidden="true">!</p>
+          <div class="step__copy">
+            <h2 class="t-h2">Saya menemukan barang</h2>
+            <p class="t-body">Titipkan barang di pos terdekat, lalu buat laporan temuan beserta pertanyaan verifikasi tentang ciri barangnya.</p>
+            <a class="btn btn--dark" th:href="@{/laporan/temuan/baru}" style="justify-self:start">Lapor temuan</a>
+          </div>
+          <div class="step__ui" aria-hidden="true">
+            <p class="chip"><span class="chip__dot"></span>Disimpan di Pos Satpam</p>
+            <span class="badge badge--jenis">Ditemukan</span>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+</main>
+<footer th:replace="~{fragments/layout :: footerSlim}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+</body>
+</html>
