@@ -39,6 +39,11 @@
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <!-- /actuator/health untuk pengecekan kesehatan oleh hosting -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
         <!-- hanya modul BCrypt untuk hash password, tanpa Spring Security penuh -->
         <dependency>
             <groupId>org.springframework.security</groupId>

@@ -13,8 +13,8 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends fontconfig fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
 ENV TZ=Asia/Jakarta
-# memori dibatasi agar muat di paket gratis Render (512 MB)
-ENV JAVA_OPTS="-Xmx300m -Xss512k -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Duser.timezone=Asia/Jakarta -Djava.awt.headless=true"
+# memori dibatasi agar muat di paket hosting gratis (512 MB RAM, CPU kecil)
+ENV JAVA_OPTS="-Xmx300m -Xss512k -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:ActiveProcessorCount=1 -Duser.timezone=Asia/Jakarta -Djava.awt.headless=true"
 COPY --from=build /app/target/balikinaja-1.0.0.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar app.jar"]
