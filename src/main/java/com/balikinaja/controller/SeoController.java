@@ -4,6 +4,7 @@ import com.balikinaja.model.LaporanTemuan;
 import com.balikinaja.service.LaporanTemuanService;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,9 +15,12 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class SeoController {
 
     private final LaporanTemuanService laporanTemuanService;
+    private final String alamatSitus;
 
-    public SeoController(LaporanTemuanService laporanTemuanService) {
+    public SeoController(LaporanTemuanService laporanTemuanService,
+                         @Value("${balikinaja.alamat-situs:}") String alamatSitus) {
         this.laporanTemuanService = laporanTemuanService;
+        this.alamatSitus = alamatSitus.replaceAll("/+$", "");
     }
 
     @GetMapping(value = "/robots.txt", produces = MediaType.TEXT_PLAIN_VALUE)
@@ -50,7 +54,10 @@ public class SeoController {
         return xml.append("</urlset>\n").toString();
     }
 
-    private static String baseUrl() {
+    private String baseUrl() {
+        if (!alamatSitus.isBlank()) {
+            return alamatSitus;
+        }
         return ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
     }
 }
